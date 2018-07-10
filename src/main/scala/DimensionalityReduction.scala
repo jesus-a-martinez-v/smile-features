@@ -1,5 +1,6 @@
 import smile.data.{Attribute, AttributeDataset, NominalAttribute, NumericAttribute}
 import smile.math.kernel.GaussianKernel
+import smile.plot.{Palette, plot}
 import smile.projection.{gha, kpca, pca, ppca}
 import smile.read
 
@@ -23,26 +24,23 @@ object DimensionalityReduction extends App {
   val pc = pca(data.x())
   pc.setProjection(3)
   val xPca = pc.project(data.x())
-
-  println(s"Number of columns X: ${data.x().head.length}")
-  println(s"Number of columns of projected X after PCA: ${xPca.head.length}")
+  compareLengthsAndPlot(data, xPca, "PCA")
 
   val ppc = ppca(data.x(), 3)
   val xPpca = ppc.project(data.x())
-
-  println(s"Number of columns X: ${data.x().head.length}")
-  println(s"Number of columns of projected X after PPCA: ${xPpca.head.length}")
+  compareLengthsAndPlot(data, xPpca, "PPCA")
 
   val kpc = kpca(data.x(), new GaussianKernel(45), 3)
   val xKpca = kpc.project(data.x())
-
-  println(s"Number of columns X: ${data.x().head.length}")
-  println(s"Number of columns of projected X after KPCA: ${xKpca.head.length}")
+  compareLengthsAndPlot(data, xKpca, "KPCA")
 
   val ghc = gha(data.x(), 3, 0.00001)
   val xGha = ghc.project(data.x())
+  compareLengthsAndPlot(data, xGha, "GHA")
 
-  println(s"Number of columns X: ${data.x().head.length}")
-  println(s"Number of columns of projected X after GHA: ${xGha.head.length}")
-
+  private def compareLengthsAndPlot(d: AttributeDataset, projectedX: Array[Array[Double]], algorithmName: String): Unit = {
+    println(s"Number of columns X: ${data.x().head.length}")
+    println(s"Number of columns of projected X after $algorithmName: ${projectedX.head.length}")
+    plot(projectedX, data.labels(), '.', Palette.COLORS)
+  }
 }
